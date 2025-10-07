@@ -140,6 +140,37 @@ service cloud.firestore {
 
 - `src/services/ai.ts` contains a summarization stub for local preview
 - Replace with an LLM provider to generate concise, context-aware summaries; cache outputs in Firestore
+- Summarization behaviour:
+  - Large wallet movements: generate concise alerts like
+    - "Wallet X moved US$12M USDT into Binance [ETH]"
+  - Sudden price drops: provide short context like
+    - "$PEPE fell 20% in 10 minutes due to whale sell-off"
+- Keep summaries action-oriented, brand-safe, and limited to one sentence.
+
+## Data Storage
+
+- Store all normalized events in Firestore under `alerts` collection.
+- Recommended schema (example fields):
+  - `id: string` — unique ID (e.g., `${chain}-${token}-${timestamp}-${suffix}`)
+  - `timestamp: number` — epoch ms
+  - `chain: 'ETH' | 'SOL' | 'BSC'`
+  - `tokenSymbol: string` and `tokenContract?: string`
+  - `severity: 'High' | 'Medium' | 'Low'`
+  - `alertType: 'Whale Move' | 'Dump'`
+  - `amountUSD?: number`, `priceChangePercent?: number`
+  - `wallets?: { address: string; label?: string }[]`
+  - `exchanges?: { name: string }[]`
+  - `summary?: string` — AI-generated one-liner
+- Historical logs for trend analysis:
+  - Keep all events (append-only); avoid destructive updates
+  - Add composite indexes for common queries:
+    - `(chain, alertType, timestamp desc)`
+    - `(tokenSymbol, timestamp desc)`
+    - `(severity, timestamp desc)`
+- Implementation guidance:
+  - Add a `saveAlert(event: AlertEvent)` helper in `src/services/firebase.ts`
+  - Use `serverTimestamp()` when appropriate; deduplicate by `id` before writes
+  - Batch writes when ingesting bursts; backoff on rate limits
 
 ## Design Decisions
 
