@@ -41,6 +41,35 @@ Professional, office-ready dashboard for real-time crypto market alerts and pric
 - Firebase App + Firestore SDK (optional via env)
 - Axios for data fetching; Recharts for visualization
 
+## Data Ingestion
+
+- On-chain wallet movements:
+  - Ethereum via Etherscan API
+  - Solana via Solscan (or Helius) API
+  - Binance Smart Chain via BSCScan API
+- Price and volume data:
+  - CoinGecko Markets API (implemented in `fetchPriceSeries`)
+  - Binance API (optional)
+  - Dex Screener (optional)
+
+Implementation status:
+- `src/services/ingest.ts`
+  - `fetchPriceSeries(tokenId, days)` uses CoinGecko to build chart series
+  - `detectDumpsFromSeries(series, token, chain)` flags sharp drops as alerts
+  - `fetchWhaleMoves(chain)` currently returns placeholders — replace with real API calls
+- Normalization and IDs
+  - Normalize to `AlertEvent` and deduplicate by `id` (chain-token-timestamp-suffix)
+  - Canadian locale formatting applied for timestamps and currency
+
+Environment variables (add to `.env` as needed):
+```
+VITE_ETHERSCAN_API_KEY=...
+VITE_BSCSCAN_API_KEY=...
+VITE_SOLSCAN_API_KEY=...    # or VITE_HELIUS_API_KEY=...
+VITE_BINANCE_API_KEY=...    # optional
+```
+Use rate limits and backoff when polling; cache normalized alerts in Firestore for consistency.
+
 ## Local Setup
 
 Prerequisites:
