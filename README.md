@@ -4,7 +4,7 @@ Professional, office-ready dashboard for real-time crypto market alerts and pric
 
 ## Live Demo & Repository
 
-- Live hosted link: `https://YOUR_HOSTED_URL_HERE` (Firebase Hosting or Vercel)
+- Live hosted link: https://crypto-intelligence-dashboard.vercel.app/
 - GitHub repository: https://github.com/Barkat0126/Crypto-Intelligence-Dashboard
 - Commit strategy: meaningful, scoped messages (feat/ui, fix/data, chore/devops); small focused PRs.
 
